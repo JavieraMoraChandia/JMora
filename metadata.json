@@ -1,0 +1,8 @@
+{
+  "name": "Pictogramas a Español - deploy",
+  "description": "Un asistente de comunicación aumentativa y alternativa (CAA) que transforma pictogramas en frases naturales en español para adolescentes con TEA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
