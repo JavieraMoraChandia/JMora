@@ -1,32 +1,35 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
 
-// Fix: Removed separate API_KEY constant and use process.env.API_KEY directly as per guidelines.
-
 export const translatePictograms = async (pictograms: string[]): Promise<string> => {
-  // Fix: Always use process.env.API_KEY directly when initializing the client instance.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Act as a language assistant for a teenager with ASD. 
-  I will give you a sequence of words/labels from pictograms. 
-  Your task is to transform them into a natural, grammatically correct, and simple Spanish sentence that the teenager would say to communicate.
+  const prompt = `Eres un asistente de comunicación para un adolescente con TEA (Trastorno del Espectro Autista). 
+  Tu objetivo es convertir una lista de etiquetas de pictogramas en una frase en español natural, sencilla y propia de un chico de 13-17 años.
   
-  Input labels: ${pictograms.join(", ")}
-  Output: Return ONLY the Spanish sentence. No explanations.`;
+  Reglas:
+  1. Usa un lenguaje natural (ej. en vez de "Yo querer comer manzana", usa "Me apetece una manzana" o "Quiero comer una manzana").
+  2. Mantén la frase corta y directa.
+  3. Evita sonar infantil o demasiado robótico.
+  
+  Etiquetas de entrada: ${pictograms.join(", ")}
+  Resultado (SOLO la frase en español):`;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      temperature: 0.1,
-    }
-  });
-
-  // Fix: Access .text property directly (it is a getter, not a method).
-  return response.text || "No se pudo generar la frase.";
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        temperature: 0.4,
+      }
+    });
+    return response.text?.trim() || "No sé qué decir.";
+  } catch (error) {
+    console.error("Error translation:", error);
+    return "Error al generar la frase.";
+  }
 };
 
 export const generateSpeech = async (text: string): Promise<Uint8Array> => {
-  // Fix: Always use process.env.API_KEY directly when initializing the client instance.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
@@ -42,13 +45,11 @@ export const generateSpeech = async (text: string): Promise<Uint8Array> => {
   });
 
   const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  if (!base64Audio) throw new Error("No audio data returned");
+  if (!base64Audio) throw new Error("No audio data");
   
   return decode(base64Audio);
 };
 
-// Utils for audio
-// Fix: Implement manual decode function following the provided @google/genai examples.
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -59,7 +60,6 @@ function decode(base64: string) {
   return bytes;
 }
 
-// Fix: Implement decodeAudioData following the provided @google/genai examples for raw PCM data.
 export async function decodeAudioData(
   data: Uint8Array,
   ctx: AudioContext,

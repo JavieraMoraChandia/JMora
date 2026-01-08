@@ -10,18 +10,19 @@ interface PictogramTileProps {
 
 const PictogramTile: React.FC<PictogramTileProps> = ({ pictogram, onClick, size = 'md' }) => {
   const sizeClasses = {
-    sm: 'w-16 h-16 text-xs',
-    md: 'w-24 h-24 text-sm',
+    sm: 'w-16 h-16 text-[10px]',
+    md: 'aspect-square w-full min-h-[110px] text-xs',
     lg: 'w-32 h-32 text-base',
   };
 
   return (
     <button
       onClick={() => onClick(pictogram)}
-      className={`${sizeClasses[size]} flex flex-col items-center justify-center rounded-xl border-2 border-transparent hover:border-blue-400 active:scale-95 transition-all shadow-sm ${pictogram.color} p-2`}
+      className={`${sizeClasses[size]} flex flex-col items-center justify-center rounded-[2rem] border-2 border-transparent hover:border-indigo-400 active:scale-90 transition-all duration-200 shadow-lg ${pictogram.color} p-3 group relative overflow-hidden`}
     >
-      <span className="text-3xl mb-1">{pictogram.emoji}</span>
-      <span className="font-semibold text-center leading-tight">{pictogram.label}</span>
+      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <span className="text-4xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">{pictogram.emoji}</span>
+      <span className="font-black text-center leading-tight uppercase tracking-tight">{pictogram.label}</span>
     </button>
   );
 };
